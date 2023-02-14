@@ -51,7 +51,7 @@ The available options are as follows:
 |`y_goal`|y-coordinate of the goal point|
 |`x_space_size`|The extent of the problem environment in the x-axis, from `0` to this value.|
 |`y_space_size`|The extent of the problem environment in the y-axis, from `0` to this value.|
-|`list_obstacles`|A list of obstacles for the robot to avoid, each obstacle being represented as a list of xy coordinates defining the vertices of a simple polygon.|
+|`list_obstacles`|A list of obstacles for the robot to avoid, each obstacle being represented as a list of xy coordinates defining the vertices of a simple polygon. Obstacle vertices should be written in either clockwise or anti-clockwise order.|
 
 ## Examples
 ### Multiple obstacles
