@@ -63,6 +63,7 @@ def segment_intersect_proper(p1, p2, p3, p4):
 
 def on_segment(v, w, p, exclusive = False):
     # Returns True is point p lies on the line segment defined by v and w, otherwise False
+    # Input exclusive determines how intersection at endpoints is handled
     parallel = np.isclose(np.cross(np.subtract(p, v), np.subtract(w, v)), 0)
 
     if exclusive:

@@ -19,16 +19,21 @@ def visgraph(start, goal, obstacles, external_edges, internal_edges, x_space_siz
     n = len(vertices)
     adj_mat = np.zeros((n, n))
 
+    # Check for visibility between every pair of vertices
     for i in range(len(vertices)):
         v = np.array(vertices[i])
         for j in range(len(vertices)):
+            # Check for redundant pair
             if i == j or adj_mat[i, j] > 0: continue
             w = np.array(vertices[j])
+
+            # Only in-bounds vertices can be visible
             if not in_bounds(v, x_space_size, y_space_size):
                 continue
             if not in_bounds(w, x_space_size, y_space_size):
                 continue
-
+            
+            # Check for intersection with any external or internal edges
             intersect = False
             for ee in external_edges:
                 if segment_intersect_proper(v, w, np.array(ee[0]), np.array(ee[1])):
@@ -40,10 +45,8 @@ def visgraph(start, goal, obstacles, external_edges, internal_edges, x_space_siz
                 if segment_intersect_internal(v, w, ie0, ie1):
                     intersect = True
                     break
-                if (np.array_equal(v, ie0) and np.array_equal(w, ie1)) or (np.array_equal(v, ie1) and np.array_equal(w, ie0)):
-                    intersect = True
-                    break
             
+            # If no intersection detected, add the euclidean distance as an entry to the adjacency matrix
             if not intersect:
                 dist = np.linalg.norm(np.array(v) - np.array(w))
                 adj_mat[i, j] = dist
@@ -53,7 +56,9 @@ def visgraph(start, goal, obstacles, external_edges, internal_edges, x_space_siz
 
 def segment_intersect_internal(p1, p2, p3, p4):
     # Special case of segment intersection for internal edges
-    if segment_intersect_proper(p1, p2, p3, p4):
+    if (np.array_equal(p1, p3) and np.array_equal(p2, p4)) or (np.array_equal(p1, p4) and np.array_equal(p2, p3)):
+        return True
+    elif segment_intersect_proper(p1, p2, p3, p4):
         return True
     elif on_segment(p3, p4, p1, True):
         return True
@@ -67,6 +72,8 @@ def segment_intersect_internal(p1, p2, p3, p4):
         return False
 
 def triangulate(obstacle):
+    # Given a series of vertices defining a simple polygon, triangulates the polygon and returns two lists of edges:
+    # one containing the edges external to the original polygon and one containing those internal to it.
     index_list = []
     for i in range(len(obstacle)):
         index_list.append(i)
@@ -74,11 +81,13 @@ def triangulate(obstacle):
     external_edges = []
     internal_edges = []
 
+    # Add all edges of input polygon to externals
     for i in range(len(obstacle)):
         curr = obstacle[i]
         next = obstacle[(i + 1) % len(obstacle)]
         external_edges.append([curr, next])
 
+    # Triangulate by "ear clipping method"
     while len(index_list) > 3:
         for i in range(len(index_list)):
             curr_i = index_list[i]
@@ -106,7 +115,7 @@ def triangulate(obstacle):
                     break
             if containing: continue
             
-            # Vertex is an ear, add triangle edges and remove vertex from list
+            # Vertex is an ear, add internal edge and remove vertex from list
             if not np.any(np.all([prev, next] == external_edges)):
                 internal_edges.append([prev.tolist(), next.tolist()])
             index_list.pop(i)
@@ -204,18 +213,9 @@ if __name__=="__main__":
             ax.add_patch(p)
         
         plt.savefig('scene.png')
-
-        #for i, v in enumerate(vertices):
-        #    for j, w in enumerate(vertices):
-        #        if i == j: continue
-        #        if adj_mat[i][j] > 0:
-        #            ax.plot([v[0],w[0]],[v[1],w[1]], 'b.-', alpha=0.05)
         
         path = np.array(path)
         ax.plot(path[:,0], path[:,1], 'r.-')
-
-        #for ie in internal_edges:
-        #    ax.plot([ie[0][0], ie[1][0]],[ie[0][1], ie[1][1]], 'g.--', alpha=0.0)
 
         plt.savefig('solution.png')
         plt.show()
