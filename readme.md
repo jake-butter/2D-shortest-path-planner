@@ -1,4 +1,4 @@
-# Coding Assignment: 2D Shortest Path Planner
+# 2D Shortest Path Planner
 This program computes a solution to a given two-dimensional continuous-space shortest path problem.
 
 The program takes as input start and goal points and a list of obstacles represented by simple polygons, and returns the shortest path from the start to the goal.
